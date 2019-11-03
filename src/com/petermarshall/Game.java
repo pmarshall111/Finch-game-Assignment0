@@ -38,11 +38,8 @@ public class Game {
     }
 
     private static void welcomeUser() {
-        int timeToPutBeakUp = 5;
-        System.out.println("Hello user. If you want to play, put your control finch's beak facing upwards. " +
-                "You have " + timeToPutBeakUp + " seconds.");
-
-        sleep(timeToPutBeakUp * 1000); //multiplied by 1000 as the duration argument is in milliseconds.
+        System.out.println("Hello user. We are starting the game. If you want to quit the game, put your control " +
+                "finch's beak facing upwards.");
     }
 
     private static void playGame() {
