@@ -22,16 +22,15 @@ public class Game {
     }
 
     private static void setup() {
+        CONTROL_FINCH = new Finch();
         ColouredFinch redFinch = new ColouredFinch( Color.RED );
         ColouredFinch blueFinch = new ColouredFinch( Color.BLUE );
         ColouredFinch greenFinch = new ColouredFinch( Color.GREEN );
         ColouredFinch yellowFinch = new ColouredFinch( Color.YELLOW );
-        CONTROL_FINCH = new Finch();
-
         colouredFinches = new ColouredFinch[]{ redFinch, blueFinch, greenFinch, yellowFinch };
+
         correctOrder = new ArrayList<>();
         userOrder = new ArrayList<>();
-
         gameOver = false;
     }
 
@@ -134,11 +133,14 @@ public class Game {
 
 
     private static void flashAllFinchesX3() {
-        for (int i = 0; i<3; i++) {
+        int numFlashes = 3;
+        int displayTime = 100;
+
+        for (int i = 0; i<numFlashes; i++) {
             for (ColouredFinch finch: colouredFinches) {
-                finch.turnOnLight(100);
+                finch.turnOnLight(displayTime);
             }
-            sleep(200);
+            sleep(2*displayTime);
         }
     }
 
