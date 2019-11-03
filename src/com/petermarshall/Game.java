@@ -42,8 +42,8 @@ public class Game {
 
     private static void playGame() {
         while (!gameOver) {
-            userOrder.clear();
             addExtraFinchToList();
+            emptyUserGuesses();
             showOrderToUser();
             getUserOrder();
         }
@@ -52,6 +52,10 @@ public class Game {
     private static void addExtraFinchToList() {
         ColouredFinch finch = getRandomFinch();
         correctOrder.add(finch);
+    }
+
+    private static void emptyUserGuesses() {
+        userOrder.clear();
     }
 
     private static void showOrderToUser() {
