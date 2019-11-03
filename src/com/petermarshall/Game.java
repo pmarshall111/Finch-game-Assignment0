@@ -42,6 +42,7 @@ public class Game {
 
     private static void playGame() {
         while (!gameOver) {
+            userOrder.clear();
             addExtraFinchToList();
             showOrderToUser();
             getUserOrder();
