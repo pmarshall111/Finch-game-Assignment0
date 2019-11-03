@@ -14,7 +14,7 @@ public class Game {
     public static void main (String[] args) {
         setup();
         welcomeUser();
-        checkControlFinch();
+        checkControlFinchForGameOver();
 
         if (!gameOver) {
             playGame();
@@ -69,7 +69,7 @@ public class Game {
     private static void getUserOrder() {
         while (userNeedsToInput() && !gameOver) {
             waitForUserInput();
-            checkControlFinch();
+            checkControlFinchForGameOver();
         }
     }
 
@@ -106,7 +106,7 @@ public class Game {
         return colouredFinches[randomIndex];
     }
 
-    private static void checkControlFinch() {
+    private static void checkControlFinchForGameOver() {
         if (CONTROL_FINCH.isBeakUp()) {
             gameOver = true;
             gameOverControlFinch();
