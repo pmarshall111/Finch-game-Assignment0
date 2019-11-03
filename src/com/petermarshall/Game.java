@@ -16,9 +16,7 @@ public class Game {
         welcomeUser();
         checkControlFinch();
 
-        if (gameOver) {
-            gameOverControlFinch();
-        } else {
+        if (!gameOver) {
             playGame();
         }
     }
@@ -70,7 +68,7 @@ public class Game {
 
     private static void getUserOrder() {
         while (userNeedsToInput() && !gameOver) {
-            lookForUserInput();
+            waitForUserInput();
             checkControlFinch();
         }
     }
@@ -79,7 +77,7 @@ public class Game {
         return correctOrder.size() != userOrder.size();
     }
 
-    private static void lookForUserInput() {
+    private static void waitForUserInput() {
         for (ColouredFinch finch: colouredFinches) {
             if (finch.isTapped()) {
                 checkUserInput(finch);
@@ -111,11 +109,11 @@ public class Game {
     private static void checkControlFinch() {
         if (CONTROL_FINCH.isBeakUp()) {
             gameOver = true;
+            gameOverControlFinch();
         }
     }
 
     private static void gameOverControlFinch() {
-        gameOver = true;
         System.out.println("Control finch is down, game ended. Completed " + getCompletedLevels() + " levels.");
     }
 
