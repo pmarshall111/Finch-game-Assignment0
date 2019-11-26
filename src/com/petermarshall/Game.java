@@ -1,8 +1,10 @@
 package com.petermarshall;
 
+import de.vandermeer.asciitable.AsciiTable;
 import edu.cmu.ri.createlab.terk.robot.finch.Finch;
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Game {
     private static Finch CONTROL_FINCH;
@@ -10,6 +12,7 @@ public class Game {
     private static ArrayList<ColouredFinch> correctOrder;
     private static ArrayList<ColouredFinch> userOrder;
     private static boolean gameOver;
+    private static Scanner scanner;
 
     public static void main (String[] args) {
         setup();
@@ -17,21 +20,23 @@ public class Game {
         checkControlFinchForGameOver();
 
         if (!gameOver) {
+            sleep(2000);
             playGame();
         }
     }
 
     private static void setup() {
         CONTROL_FINCH = new Finch();
-        ColouredFinch redFinch = new ColouredFinch( Color.RED );
-        ColouredFinch blueFinch = new ColouredFinch( Color.BLUE );
-        ColouredFinch greenFinch = new ColouredFinch( Color.GREEN );
-        ColouredFinch yellowFinch = new ColouredFinch( Color.YELLOW );
+        ColouredFinch redFinch = new ColouredFinch( Color.RED, "Red" );
+        ColouredFinch blueFinch = new ColouredFinch( Color.BLUE, "Blue" );
+        ColouredFinch greenFinch = new ColouredFinch( Color.GREEN, "Green" );
+        ColouredFinch yellowFinch = new ColouredFinch( Color.YELLOW, "Yellow" );
         colouredFinches = new ColouredFinch[]{ redFinch, blueFinch, greenFinch, yellowFinch };
 
         correctOrder = new ArrayList<>();
         userOrder = new ArrayList<>();
         gameOver = false;
+        scanner = new Scanner(System.in);
     }
 
     private static void welcomeUser() {
@@ -44,7 +49,8 @@ public class Game {
             addExtraFinchToList();
             emptyUserGuesses();
             showOrderToUser();
-            getUserOrder();
+            getAndCheckUserOrder();
+            sleep(500);
         }
     }
 
@@ -70,10 +76,26 @@ public class Game {
         }
     }
 
-    private static void getUserOrder() {
+    private static void getAndCheckUserOrder() {
         while (userNeedsToInput() && !gameOver) {
             waitForUserInput();
             checkControlFinchForGameOver();
+        }
+
+        if (!gameOver) {
+            congratulateUser();
+        }
+    }
+
+    private static void congratulateUser() {
+        System.out.println("Well done, you have completed level " + correctOrder.size() + ". Press any key to continue to the next level, or point your Control Finch up to quit.");
+
+        while (!scanner.hasNext() && !gameOver) {
+            checkControlFinchForGameOver();
+        }
+
+        if (!gameOver) {
+            System.out.flush(); //clears the console output after each level so the user cannot just copy what they inputted for the last level.
         }
     }
 
@@ -83,7 +105,9 @@ public class Game {
 
     private static void waitForUserInput() {
         for (ColouredFinch finch: colouredFinches) {
+            sleep(100);
             if (finch.isTapped()) {
+                sleep(100);
                 checkUserInput(finch);
             }
         }
@@ -92,16 +116,20 @@ public class Game {
     private static void checkUserInput(ColouredFinch selectedFinch) {
         if (incorrectUserInput(selectedFinch)) {
             selectedFinch.buzz();
-            gameOverBadInput();
+            gameOverBadInput(selectedFinch);
         } else {
             userOrder.add(selectedFinch);
-            sleep(100); //to make sure we do not add duplicate finches for the same tap. finch isTapped method
+            sleep(200); //to make sure we do not add duplicate finches for the same tap. finch isTapped method
             //may report multiple taps for the same tap.
         }
     }
 
+    private static ColouredFinch getCorrectInput() {
+        return correctOrder.get(userOrder.size());
+    }
+
     private static boolean incorrectUserInput(ColouredFinch selectedFinch) {
-        return correctOrder.get(userOrder.size()) != selectedFinch;
+        return getCorrectInput() != selectedFinch;
     }
 
     private static ColouredFinch getRandomFinch() {
@@ -121,20 +149,37 @@ public class Game {
         System.out.println("Control finch is down, game ended. Completed " + getCompletedLevels() + " levels.");
     }
 
-    private static void gameOverBadInput() {
+    private static void gameOverBadInput(ColouredFinch selectedFinch) {
         gameOver = true;
-        System.out.println("Wrong input. Completed " + getCompletedLevels() + " levels.");
+
+        System.out.println("Wrong input. You selected " + selectedFinch.getDescription() + ", but the correct answer was " + getCorrectInput().getDescription());
+        System.out.println(getInputTable());
+        System.out.println("Bye bye.");
+
         flashAllFinchesX3();
     }
 
+    private static String getInputTable() {
+        AsciiTable table = new AsciiTable();
+        table.addRule();
+        table.addRow("", "Correct order", "Your order");
+        table.addRule();
+        for (int i = 0; i<correctOrder.size(); i++) {
+            table.addRow(i+1, correctOrder.get(i).getDescription(), userOrder.get(i).getDescription());
+            table.addRule();
+        }
+
+        return table.render();
+    }
+
     private static int getCompletedLevels() {
-        return Math.min(0, correctOrder.size()-1);
+        return Math.max(0, correctOrder.size()-1);
     }
 
 
     private static void flashAllFinchesX3() {
         int numFlashes = 3;
-        int displayTime = 100;
+        int displayTime = 1000;
 
         for (int i = 0; i<numFlashes; i++) {
             for (ColouredFinch finch: colouredFinches) {
