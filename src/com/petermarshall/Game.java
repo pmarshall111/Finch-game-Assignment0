@@ -165,7 +165,15 @@ public class Game {
         table.addRow("", "Correct order", "Your order");
         table.addRule();
         for (int i = 0; i<correctOrder.size(); i++) {
-            table.addRow(i+1, correctOrder.get(i).getDescription(), userOrder.get(i).getDescription());
+            String correctColour = correctOrder.get(i).getDescription();
+            String userColour;
+            try {
+                userColour = userOrder.get(i).getDescription();
+            } catch (ArrayIndexOutOfBoundsException e) {
+                userColour = "";
+            }
+
+            table.addRow(i+1, correctColour, userColour);
             table.addRule();
         }
 
