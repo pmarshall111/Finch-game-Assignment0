@@ -1,6 +1,7 @@
 package com.petermarshall;
 
-import de.vandermeer.asciitable.AsciiTable;
+//import de.vandermeer.asciitable.AsciiTable;
+import com.github.freva.asciitable.AsciiTable;
 import edu.cmu.ri.createlab.terk.robot.finch.Finch;
 import java.awt.Color;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class Game {
         checkControlFinchForGameOver();
 
         if (!gameOver) {
+//            readyToBegin();
             sleep(2000);
             playGame();
         }
@@ -29,10 +31,10 @@ public class Game {
         CONTROL_FINCH = new Finch();
         ColouredFinch redFinch = new ColouredFinch( Color.RED, "Red" );
         ColouredFinch blueFinch = new ColouredFinch( Color.BLUE, "Blue" );
-        ColouredFinch greenFinch = new ColouredFinch( Color.GREEN, "Green" );
-        ColouredFinch yellowFinch = new ColouredFinch( Color.YELLOW, "Yellow" );
-        colouredFinches = new ColouredFinch[]{ redFinch, blueFinch, greenFinch, yellowFinch };
-
+//        ColouredFinch greenFinch = new ColouredFinch( Color.GREEN, "Green" );
+//        ColouredFinch yellowFinch = new ColouredFinch( Color.YELLOW, "Yellow" );
+        colouredFinches = new ColouredFinch[]{ redFinch, blueFinch };
+//        greenFinch, yellowFinch
         correctOrder = new ArrayList<>();
         userOrder = new ArrayList<>();
         gameOver = false;
@@ -87,15 +89,30 @@ public class Game {
         }
     }
 
-    private static void congratulateUser() {
-        System.out.println("Well done, you have completed level " + correctOrder.size() + ". Press any key to continue to the next level, or point your Control Finch up to quit.");
+    private static void readyToBegin() {
+        System.out.println("Press any key or enter to start the game, or put your Finch's beak upwards to quit the game.");
 
         while (!scanner.hasNext() && !gameOver) {
             checkControlFinchForGameOver();
         }
+    }
+
+    private static void congratulateUser() {
+        System.out.println("Well done, you have completed level " + correctOrder.size() + ". Press any key then enter to continue to the next level, or point your Control Finch up to quit.");
+        while (!scanner.hasNext() && !gameOver) {
+            checkControlFinchForGameOver();
+        }
+        scanner.nextLine();
 
         if (!gameOver) {
-            System.out.flush(); //clears the console output after each level so the user cannot just copy what they inputted for the last level.
+            clearConsole(); //clears the console output after each level so the user cannot just copy what they inputted for the last level.
+        }
+    }
+
+    private static void clearConsole() {
+        int numbBlankLines = 200;
+        for(int i = 0; i < numbBlankLines; i++) {
+            System.out.println("\b") ;
         }
     }
 
@@ -153,31 +170,31 @@ public class Game {
         gameOver = true;
 
         System.out.println("Wrong input. You selected " + selectedFinch.getDescription() + ", but the correct answer was " + getCorrectInput().getDescription());
-        System.out.println(getInputTable());
+        System.out.println(getInputTable(selectedFinch));
         System.out.println("Bye bye.");
 
         flashAllFinchesX3();
+
     }
 
-    private static String getInputTable() {
-        AsciiTable table = new AsciiTable();
-        table.addRule();
-        table.addRow("", "Correct order", "Your order");
-        table.addRule();
+    private static String getInputTable(ColouredFinch selectedFinch) {
+        String[] headers = {"", "Correct order", "Your order"};
+        String[][] rows = new String[getCompletedLevels()+1][3];
+
         for (int i = 0; i<correctOrder.size(); i++) {
             String correctColour = correctOrder.get(i).getDescription();
             String userColour;
             try {
                 userColour = userOrder.get(i).getDescription();
-            } catch (ArrayIndexOutOfBoundsException e) {
-                userColour = "";
+            } catch (Exception e) {
+                userColour = selectedFinch.getDescription().toUpperCase();
             }
 
-            table.addRow(i+1, correctColour, userColour);
-            table.addRule();
+            String[] row = new String[]{(i+1)+"", correctColour, userColour};
+            rows[i] = row;
         }
 
-        return table.render();
+        return AsciiTable.getTable(headers, rows);
     }
 
     private static int getCompletedLevels() {
